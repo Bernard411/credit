@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>KwikCash - Smart Lending Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+     <link href="https://fonts.cdnfonts.com/css/maria-2" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Maria', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: whitesmoke;
+            min-height: 100vh;
+            margin: 0;
+            
+            font-size: 14px;
+            overflow-x: hidden;
+            touch-action: pan-y;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+        
+        .gradient-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.2s ease;
+        }
+        
+        .gradient-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left: 3px solid #667eea;
+            transition: all 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateX(3px);
+            box-shadow: 0 3px 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        .loan-status {
+            animation: slideIn 0.4s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-dot {
+            animation: pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        input, select, textarea {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .section {
+            display: none;
+            padding-bottom: 80px;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 60px;
+            z-index: 50;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #6b7280;
+            font-size: 12px;
+            padding: 8px;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+        }
+        
+        .nav-item i {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="px-4 py-6">
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="section active">
+        <div class="mb-6">
+            <!-- App Logo with Text -->
+            <div class="flex flex-col items-center mb-4">
+                <img src="https://img.freepik.com/premium-vector/coin-leaf-logo-combination-money-eco-symbol-icon_617472-6242.jpg" alt="KwikCash Logo" class="w-12 h-12 rounded-full shadow-lg">
+                <span class="text-gray text-lg font-bold mt-2">KwikCash Malawi</span>
+            </div>
+            <!-- Welcome Header with User Avatar Image -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <img src="https://png.pngtree.com/png-vector/20240914/ourmid/pngtree-cartoon-user-avatar-vector-png-image_13572228.png" alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-gray">
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-gray"></div>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray" style="font-family: Poppins;">Takulandilani, John!</h1>
+                        <p class="text--200 text-xs">Manage your loans</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="glass-card p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class='bx bx-check-circle text-green-600 text-lg'></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-xs mb-1">Active Loans</p>
+                <p class="text-lg font-bold text-gray-900">2</p>
+                <p class="text-green-600 text-xs mt-1">MWK 85,000 total</p>
+            </div>
+
+            <div class="glass-card p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class='bx bx-dollar-circle text-blue-600 text-lg'></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-xs mb-1">Available Credit</p>
+                <p class="text-lg font-bold text-gray-900">65K</p>
+                <p class="text-blue-600 text-xs mt-1">MWK remaining</p>
+            </div>
+
+            <div class="glass-card p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class='bx bx-line-chart text-purple-600 text-lg'></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-xs mb-1">Credit Score</p>
+                <p class="text-lg font-bold text-gray-900">750</p>
+                <p class="text-purple-600 text-xs mt-1">Excellent</p>
+            </div>
+
+            <div class="glass-card p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i class='bx bx-time text-orange-600 text-lg'></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-xs mb-1">Next Payment</p>
+                <p class="text-lg font-bold text-gray-900">5 days</p>
+                <p class="text-orange-600 text-xs mt-1">MWK 8,500 due</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-card p-4 mb-6">
+            <h2 class="text-base font-bold text-gray-900 mb-3">Quick Actions</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="showSection('apply')" class="flex flex-col items-center justify-center p-3 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg hover:shadow-md transition">
+                    <i class='bx bx-plus-circle text-purple-600 text-xl mb-1'></i>
+                    <span class="text-xs font-medium text-gray-700">New Loan</span>
+                </button>
+                <button onclick="showSection('loans')" class="flex flex-col items-center justify-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg hover:shadow-md transition">
+                    <i class='bx bx-list-ul text-green-600 text-xl mb-1'></i>
+                    <span class="text-xs font-medium text-gray-700">View Loans</span>
+                </button>
+                <button class="flex flex-col items-center justify-center p-3 bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg hover:shadow-md transition">
+                    <i class='bx bx-wallet text-orange-600 text-xl mb-1'></i>
+                    <span class="text-xs font-medium text-gray-700">Make Payment</span>
+                </button>
+                <button onclick="showSection('profile')" class="flex flex-col items-center justify-center p-3 bg-gradient-to-br from-pink-50 to-rose-50 rounded-lg hover:shadow-md transition">
+                    <i class='bx bx-user text-pink-600 text-xl mb-1'></i>
+                    <span class="text-xs font-medium text-gray-700">Profile</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="glass-card p-4">
+            <h2 class="text-base font-bold text-gray-900 mb-3">Recent Activity</h2>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class='bx bx-check text-green-600 text-lg'></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 text-sm">Loan Approved</p>
+                            <p class="text-xs text-gray-600">Business Loan - MWK 50,000</p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-500">2 days ago</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class='bx bx-dollar text-blue-600 text-lg'></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 text-sm">Payment Received</p>
+                            <p class="text-xs text-gray-600">MWK 8,500 processed</p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-500">5 days ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Apply for Loan Section -->
+        <div id="apply" class="section">
+            <div class="mb-6">
+                <button onclick="showSection('dashboard')" class="text-black hover:text-black-200 flex items-center space-x-2 mb-3">
+                    <i class='bx bx-arrow-back text-lg'></i>
+                    <span class="text-sm" style="color: black;">Back</span>
+                </button>
+                <h1 class="text-2xl font-bold text-black mb-1">Apply for a Loan</h1>
+                <p class="text--200 text-sm">Get instant approval</p>
+            </div>
+
+            <div class="glass-card p-5">
+                <form id="loanForm">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Loan Amount (MWK)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2.5 text-gray-400 text-sm">MWK</span>
+                                <input type="number" id="loanAmount" class="w-full pl-12 pr-3 py-2.5 border border-gray-300 rounded-lg" placeholder="50,000" min="1000" max="100000" required>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Min: 1,000 | Max: 100,000</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Repayment Period</label>
+                            <select id="repaymentPeriod" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" required>
+                                <option value="">Select period</option>
+                                <option value="1">1 month</option>
+                                <option value="3">3 months</option>
+                                <option value="6">6 months</option>
+                                <option value="12">12 months</option>
+                                <option value="18">18 months</option>
+                                <option value="24">24 months</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Loan Purpose</label>
+                            <select id="loanPurpose" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" required>
+                                <option value="">Select purpose</option>
+                                <option value="Business">Business</option>
+                                <option value="Education">Education</option>
+                                <option value="Medical">Medical</option>
+                                <option value="Personal">Personal</option>
+                                <option value="Emergency">Emergency</option>
+                                <option value="Home Improvement">Home Improvement</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Monthly Income (MWK)</label>
+                            <input type="number" id="monthlyIncome" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" placeholder="150,000" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Additional Details (Optional)</label>
+                            <textarea id="additionalDetails" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" rows="3" placeholder="Tell us more..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Loan Calculator -->
+                    <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg p-4 mt-4">
+                        <h3 class="text-base font-bold text-gray-900 mb-3">Estimated Repayment</h3>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="text-center">
+                                <p class="text-gray-600 text-xs mb-1">Monthly</p>
+                                <p class="text-lg font-bold text-purple-600" id="monthlyPayment">--</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-gray-600 text-xs mb-1">Interest</p>
+                                <p class="text-lg font-bold text-purple-600" id="totalInterest">--</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-gray-600 text-xs mb-1">Total</p>
+                                <p class="text-lg font-bold text-purple-600" id="totalRepayment">--</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-3 text-center">Interest rate: 15% per annum</p>
+                    </div>
+
+                    <div class="flex items-center mt-4">
+                        <input type="checkbox" id="terms" class="w-4 h-4 text-purple-600 rounded" required>
+                        <label for="terms" class="ml-2 text-xs text-gray-700">I agree to the <a href="#" class="text-purple-600 hover:underline">terms</a></label>
+                    </div>
+
+                    <button type="submit" class="w-full gradient-btn text-white py-3 rounded-lg font-semibold text-base mt-4">
+                        Submit Application
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- My Loans Section -->
+        <div id="loans" class="section">
+            <div class="mb-6">
+                <button onclick="showSection('dashboard')" class="text-black hover:text-gray-200 flex items-center space-x-2 mb-3">
+                    <i class='bx bx-arrow-back text-lg'></i>
+                    <span class="text-sm">Back</span>
+                </button>
+                <h1 class="text-2xl font-bold text-black mb-1">My Loans</h1>
+                <p class="text-black-200 text-sm">Track your applications</p>
+            </div>
+
+            <!-- Loan Cards -->
+            <div class="space-y-4">
+                <!-- Active Loan -->
+                <div class="glass-card p-4 loan-status">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class='bx bx-check-circle text-green-600 text-xl'></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900">Business Loan</h3>
+                                <p class="text-xs text-gray-600">#LN-2024-001</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">Approved</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Amount</p>
+                            <p class="text-base font-bold text-gray-900">MWK 50,000</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Credit Score</p>
+                            <p class="text-base font-bold text-gray-900">780/1000</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Period</p>
+                            <p class="text-base font-bold text-gray-900">12 months</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Status</p>
+                            <p class="text-base font-bold text-green-600">Active</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs text-gray-600">Progress</span>
+                            <span class="text-xs font-medium text-gray-900">3/12 payments</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                            <div class="bg-gradient-to-r from-purple-600 to-blue-600 h-1.5 rounded-full" style="width: 25%"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button class="flex-1 bg-purple-600 text-white py-2 rounded-lg text-sm hover:bg-purple-700 transition">Pay</button>
+                        <button class="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg text-sm hover:bg-gray-50 transition">Details</button>
+                    </div>
+                </div>
+
+                <!-- Pending Loan -->
+                <div class="glass-card p-4 loan-status">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                                <i class='bx bx-time text-orange-600 text-xl'></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900">Education Loan</h3>
+                                <p class="text-xs text-gray-600">#LN-2024-002</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs flex items-center">
+                            <span class="pulse-dot w-1.5 h-1.5 bg-orange-600 rounded-full mr-1"></span>
+                            Pending
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Amount</p>
+                            <p class="text-base font-bold text-gray-900">MWK 35,000</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Credit Score</p>
+                            <p class="text-base font-bold text-gray-900">720/1000</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Period</p>
+                            <p class="text-base font-bold text-gray-900">6 months</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Submitted</p>
+                            <p class="text-base font-bold text-gray-900">2 days ago</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                        <p class="text-xs text-orange-800"><i class='bx bx-info-circle'></i> Under review. Response in 3-5 days.</p>
+                    </div>
+                </div>
+
+                <!-- Rejected Loan -->
+                <div class="glass-card p-4 loan-status">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                <i class='bx bx-x-circle text-red-600 text-xl'></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900">Personal Loan</h3>
+                                <p class="text-xs text-gray-600">#LN-2024-003</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs">Declined</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Amount</p>
+                            <p class="text-base font-bold text-gray-900">MWK 80,000</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Credit Score</p>
+                            <p class="text-base font-bold text-gray-900">620/1000</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Declined On</p>
+                            <p class="text-base font-bold text-gray-900">7 days ago</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Reapply After</p>
+                            <p class="text-base font-bold text-red-600">83 days</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+                        <p class="text-xs text-red-800 font-medium"><i class='bx bx-info-circle'></i> Reason:</p>
+                        <p class="text-xs text-red-700">High debt-to-income ratio. Reapply after 90 days.</p>
+                    </div>
+
+                    <button class="w-full border border-purple-300 text-purple-600 py-2 rounded-lg text-sm hover:bg-purple-50 transition">Improvement Tips</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile" class="section">
+            <div class="mb-6">
+                <button onclick="showSection('dashboard')" class="text-black hover:text-gray-200 flex items-center space-x-2 mb-3">
+                    <i class='bx bx-arrow-back text-lg'></i>
+                    <span class="text-sm">Back</span>
+                </button>
+                <h1 class="text-2xl font-bold text-black mb-1">My Profile</h1>
+                <p class="text-black-200 text-sm">Update your information</p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Profile Summary -->
+                <div class="glass-card p-4">
+                    <div class="text-center mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span class="text-white text-xl font-bold">JB</span>
+                        </div>
+                        <h2 class="text-base font-bold text-gray-900">John Banda</h2>
+                        <p class="text-xs text-gray-600">john.banda@email.com</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="stat-card p-3 rounded-lg">
+                            <p class="text-xs text-gray-600 mb-1">Credit Score</p>
+                            <p class="text-lg font-bold text-gray-900">750</p>
+                            <p class="text-xs text-green-600 mt-1">Excellent</p>
+                        </div>
+
+                        <div class="stat-card p-3 rounded-lg">
+                            <p class="text-xs text-gray-600 mb-1">Member Since</p>
+                            <p class="text-base font-bold text-gray-900">Jan 2024</p>
+                        </div>
+
+                        <div class="stat-card p-3 rounded-lg">
+                            <p class="text-xs text-gray-600 mb-1">Total Loans</p>
+                            <p class="text-base font-bold text-gray-900">5</p>
+                            <p class="text-xs text-gray-600 mt-1">3 Approved</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Form -->
+                <div class="glass-card p-4">
+                    <h3 class="text-base font-bold text-gray-900 mb-4">Personal Information</h3>
+                    <form id="profileForm" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" value="John Banda" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" value="john.banda@email.com" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Phone</label>
+                            <input type="tel" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" value="+265 999 123 456" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Age</label>
+                            <input type="number" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" value="32" min="18" max="100" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Gender</label>
+                            <select class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" required>
+                                <option value="M" selected>Male</option>
+                                <option value="F">Female</option>
+                                <option value="O">Other</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Location</label>
+                            <select class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" required>
+                                <option value="">Select location</option>
+                                <option value="Lilongwe">Lilongwe</option>
+                                <option value="Blantyre" selected>Blantyre</option>
+                                <option value="Mzuzu">Mzuzu</option>
+                                <option value="Zomba">Zomba</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <h3 class="text-base font-bold text-gray-900 mt-4 mb-3">Financial Information</h3>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Employment</label>
+                            <select class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" required>
+                                <option value="Employed" selected>Employed</option>
+                                <option value="Self-employed">Self-employed</option>
+                                <option value="Unemployed">Unemployed</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Monthly Income (MWK)</label>
+                            <input type="number" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" value="150000" step="0.01" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Expenses (MWK)</label>
+                            <input type="number" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" value="80000" step="0.01" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Debt (MWK)</label>
+                            <input type="number" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" value="30000" step="0.01" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Dependents</label>
+                            <input type="number" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" value="2" min="0" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Employer</label>
+                            <input type="text" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg" placeholder="Company Name">
+                        </div>
+
+                        <div class="flex space-x-2">
+                            <button type="submit" class="flex-1 gradient-btn text-white py-2.5 rounded-lg text-sm font-semibold">Save</button>
+                            <button type="button" class="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-50 transition">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Security Section -->
+                <div class="glass-card p-4">
+                    <h3 class="text-base font-bold text-gray-900 mb-4">Security</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-medium text-gray-900 text-sm">Change Password</p>
+                                <p class="text-xs text-gray-600">Update regularly</p>
+                            </div>
+                            <button class="text-purple-600 hover:text-purple-700 text-sm">Change</button>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-medium text-gray-900 text-sm">Two-Factor Auth</p>
+                                <p class="text-xs text-gray-600">Add extra security</p>
+                            </div>
+                            <button class="text-purple-600 hover:text-purple-700 text-sm">Enable</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div onclick="showSection('dashboard')" class="nav-item active" data-section="dashboard">
+            <i class='bx bx-home-alt'></i>
+            <span>Home</span>
+        </div>
+        <div onclick="showSection('apply')" class="nav-item" data-section="apply">
+            <i class='bx bx-plus-circle'></i>
+            <span>Apply</span>
+        </div>
+        <div onclick="showSection('loans')" class="nav-item" data-section="loans">
+            <i class='bx bx-list-ul'></i>
+            <span>Loans</span>
+        </div>
+        <div onclick="showSection('profile')" class="nav-item" data-section="profile">
+            <i class='bx bx-user'></i>
+            <span>Profile</span>
+        </div>
+    </div>
+
+    <script>
+        // Section Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Loan Calculator
+        const loanAmountInput = document.getElementById('loanAmount');
+        const repaymentPeriodInput = document.getElementById('repaymentPeriod');
+        const interestRate = 0.15;
+
+        function calculateLoan() {
+            const amount = parseFloat(loanAmountInput.value) || 0;
+            const months = parseInt(repaymentPeriodInput.value) || 0;
+
+            if (amount > 0 && months > 0) {
+                const monthlyRate = interestRate / 12;
+                const monthlyPayment = (amount * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+                                      (Math.pow(1 + monthlyRate, months) - 1);
+                const totalRepayment = monthlyPayment * months;
+                const totalInterest = totalRepayment - amount;
+
+                document.getElementById('monthlyPayment').textContent = 'MWK ' + monthlyPayment.toFixed(0);
+                document.getElementById('totalInterest').textContent = 'MWK ' + totalInterest.toFixed(0);
+                document.getElementById('totalRepayment').textContent = 'MWK ' + totalRepayment.toFixed(0);
+            } else {
+                document.getElementById('monthlyPayment').textContent = '--';
+                document.getElementById('totalInterest').textContent = '--';
+                document.getElementById('totalRepayment').textContent = '--';
+            }
+        }
+
+        loanAmountInput.addEventListener('input', calculateLoan);
+        repaymentPeriodInput.addEventListener('change', calculateLoan);
+
+        // Loan Application Form
+        document.getElementById('loanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const amount = document.getElementById('loanAmount').value;
+            const period = document.getElementById('repaymentPeriod').value;
+            const purpose = document.getElementById('loanPurpose').value;
+            
+            alert('🎉 Application Submitted!\n\nAmount: MWK ' + amount + '\nPeriod: ' + period + ' months\nPurpose: ' + purpose + '\n\nProcessing within 24-48 hours.');
+            showSection('loans');
+            this.reset();
+        });
+
+        // Profile Form
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('✅ Profile updated!');
+        });
+
+        // Initialize calculator
+        calculateLoan();
+    </script>
+</body>
+</html>

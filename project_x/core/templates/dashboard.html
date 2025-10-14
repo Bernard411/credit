@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Credit Scoring Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+      <link href="https://fonts.cdnfonts.com/css/maria-2" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Maria', sans-serif;
+        }
+        
+        body {
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card:hover {
+            border-color: rgba(203, 213, 225, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(241, 245, 249, 0.6);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(203, 213, 225, 0.6);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="p-4 lg:p-6">
+    <!-- Header -->
+    <div class="card rounded-lg p-4 mb-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-white-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                   <img src="https://assets-v2.lottiefiles.com/a/5b038ad2-4fd1-11ef-8f43-075ce7e78c34/KmGwB3OYAI.gif" alt="">
+                </div>
+                <div>
+                    <h1 class="text-lg font-semibold text-slate-900">Machine Learning Dashboard</h1>
+                    <p class="text-xs text-slate-500">Credit Scoring Analytics</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="retrainModel()" class="bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-xs flex items-center space-x-2 border border-slate-200 transition">
+                    <i class='bx bx-refresh text-sm'></i>
+                    <span>Retrain</span>
+                </button>
+                <div class="text-right">
+                    <p class="text-xs text-slate-400">Updated</p>
+                    <p class="text-xs text-slate-600">{{ last_updated }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div class="metric-card rounded-lg p-4">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class='bx bx-file text-slate-500 text-sm'></i>
+                        <p class="text-xs text-slate-500 uppercase tracking-wide">Applications</p>
+                    </div>
+                    <p class="text-2xl font-semibold text-slate-900">{{ total_applications }}</p>
+                    <p class="text-xs text-emerald-600 mt-1">↑ 12%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card rounded-lg p-4">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class='bx bx-check-circle text-slate-500 text-sm'></i>
+                        <p class="text-xs text-slate-500 uppercase tracking-wide">Approved</p>
+                    </div>
+                    <p class="text-2xl font-semibold text-slate-900">{{ approved_loans }}</p>
+                    <p class="text-xs text-slate-600 mt-1">MWK {{ approved_value|floatformat:0 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card rounded-lg p-4">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class='bx bx-time text-slate-500 text-sm'></i>
+                        <p class="text-xs text-slate-500 uppercase tracking-wide">Pending</p>
+                    </div>
+                    <p class="text-2xl font-semibold text-slate-900">{{ pending_reviews }}</p>
+                    <p class="text-xs text-slate-600 mt-1">MWK {{ pending_value|floatformat:0 }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card rounded-lg p-4">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class='bx bx-chip text-slate-500 text-sm'></i>
+                        <p class="text-xs text-slate-500 uppercase tracking-wide">Model MSE</p>
+                    </div>
+                    <p class="text-2xl font-semibold text-slate-900">{% if ml_performance %}{{ ml_performance.accuracy|floatformat:2 }}{% else %}--{% endif %}</p>
+                    <p class="text-xs text-slate-600 mt-1">Random Forest</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+        <div class="card rounded-lg p-4 lg:col-span-2">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 bg-indigo-100 rounded flex items-center justify-center">
+                        <i class='bx bx-bar-chart text-indigo-600 text-xs'></i>
+                    </div>
+                    <h3 class="text-sm font-medium text-slate-900">Credit Score Distribution</h3>
+                </div>
+                <select class="bg-white border border-slate-200 rounded text-xs px-2 py-1 text-slate-600">
+                    <option>This Month</option>
+                    <option>Quarter</option>
+                    <option>Year</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="scoreChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card rounded-lg p-4">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 bg-purple-500/20 rounded flex items-center justify-center">
+                        <i class='bx bx-pie-chart-alt-2 text-purple-400 text-xs'></i>
+                    </div>
+                    <h3 class="text-sm font-medium text-slate-200">Status</h3>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+<div class="card rounded-lg p-4 mt-4">
+        <div class="flex items-center space-x-2 mb-3">
+            <div class="w-6 h-6 bg-light-700 rounded flex items-center justify-center">
+                <i class='bx bx-stats text-light-400 text-xs'></i>
+            </div>
+            <h3 class="text-sm font-medium text-light-200">Model Performance</h3>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center p-3 bg-light-800/30 rounded">
+                <p class="text-lg font-semibold text-light-200">{% if ml_performance %}{{ ml_performance.accuracy|floatformat:2 }}{% else %}--{% endif %}</p>
+                <p class="text-xs text-light-400 mt-1">MSE</p>
+            </div>
+            <div class="text-center p-3 bg-light-800/30 rounded">
+                <p class="text-lg font-semibold text-light-200">100</p>
+                <p class="text-xs text-light-400 mt-1">Estimators</p>
+            </div>
+            <div class="text-center p-3 bg-light-800/30 rounded">
+                <p class="text-lg font-semibold text-light-200">{% if ml_performance %}{{ ml_performance.last_trained|date:"M d" }}{% else %}--{% endif %}</p>
+                <p class="text-xs text-light-400 mt-1">Last Trained</p>
+            </div>
+            <div class="text-center p-3 bg-light-800/30 rounded">
+                <p class="text-lg font-semibold text-light-200">5</p>
+                <p class="text-xs text-light-400 mt-1">Features</p>
+            </div>
+        </div>
+    </div>
+    <!-- Charts Row 2 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="card rounded-lg p-4 lg:col-span-2">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 bg-blue-500/20 rounded flex items-center justify-center">
+                        <i class='bx bx-trending-up text-blue-400 text-xs'></i>
+                    </div>
+                    <h3 class="text-sm font-medium text-black-200">Loan Trends</h3>
+                </div>
+                <div class="flex space-x-1">
+                    <button class="px-2 py-1 text-xs bg-slate-700 text-slate-300 rounded">Week</button>
+                    <button class="px-2 py-1 text-xs text-slate-400 hover:bg-slate-800 rounded">Month</button>
+                    <button class="px-2 py-1 text-xs text-slate-400 hover:bg-slate-800 rounded">Year</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="trendsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card rounded-lg p-4">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-6 h-6 bg-emerald-500/20 rounded flex items-center justify-center">
+                        <i class='bx bx-time-five text-emerald-400 text-xs'></i>
+                    </div>
+                    <h3 class="text-sm font-medium text-black-200">Recent Activity</h3>
+                </div>
+                <div class="status-dot bg-emerald-400"></div>
+            </div>
+            <div class="space-y-2 max-h-64 overflow-y-auto">
+                {% for app in recent_applications %}
+                <div class="flex items-center justify-between p-2 bg-slate-800/30 rounded hover:bg-slate-800/50 transition">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded flex items-center justify-center text-white text-xs font-medium">
+                            {{ app.user_profile.user.username|slice:":1"|upper }}
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-200">{{ app.user_profile.user.username }}</p>
+                            <p class="text-xs text-slate-500">MWK {{ app.amount|floatformat:0 }}</p>
+                        </div>
+                    </div>
+                    <span class="px-2 py-0.5 text-xs rounded 
+                        {% if app.status == 'Approved' %}bg-emerald-500/20 text-emerald-400
+                        {% elif app.status == 'Pending' %}bg-amber-500/20 text-amber-400
+                        {% else %}bg-red-500/20 text-red-400{% endif %}">
+                        {{ app.status }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Stats -->
+    
+
+    <script>
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
+        Chart.defaults.font.family = 'Inter';
+        Chart.defaults.font.size = 11;
+
+        const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+        const scoreChart = new Chart(scoreCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ score_labels|safe }},
+                datasets: [{
+                    label: 'Count',
+                    data: {{ score_data|safe }},
+                    backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                    borderRadius: 4,
+                    barThickness: 40
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.05)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        const statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ status_labels|safe }},
+                datasets: [{
+                    data: {{ status_data|safe }},
+                    backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(239, 68, 68, 0.8)'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { padding: 15, boxWidth: 12 } } }
+            }
+        });
+
+        const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+        const trendsChart = new Chart(trendsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Amount (MWK)',
+                    data: [450000, 520000, 380000, 670000, 550000, 490000, 610000],
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.05)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        function retrainModel() {
+            if(confirm('Retrain the ML model? This may take a few minutes.')) {
+                alert('Model retraining initiated.');
+            }
+        }
+    </script>
+</body>
+</html>
