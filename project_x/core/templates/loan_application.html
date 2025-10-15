@@ -1,0 +1,87 @@
+<!-- templates/loans/loan_application.html (extracted and adapted from ui.html's #apply section, uses Django form) -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Apply for Loan</h2>
+    
+    <div class="glass-card p-4 mb-6">
+        <form method="post" id="loanForm">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Loan Amount (MWK)</label>
+                    {{ form.amount }}
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Repayment Period</label>
+                    {{ form.repayment_period }}
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Purpose</label>
+                    {{ form.purpose }}
+                </div>
+                
+                <button type="submit" class="w-full gradient-btn text-white py-3 rounded-lg font-semibold text-sm">Apply Now</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Loan Calculator -->
+    <div class="glass-card p-4">
+        <h3 class="text-base font-bold text-gray-900 mb-4">Loan Calculator</h3>
+        <div class="space-y-4">
+            <div class="flex justify-between text-xs text-gray-600">
+                <span>Monthly Payment:</span>
+                <span id="monthlyPayment">--</span>
+            </div>
+            <div class="flex justify-between text-xs text-gray-600">
+                <span>Total Interest:</span>
+                <span id="totalInterest">--</span>
+            </div>
+            <div class="flex justify-between text-xs text-gray-600">
+                <span>Total Repayment:</span>
+                <span id="totalRepayment">--</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_scripts %}
+<script>
+    // Loan Calculator (kept from ui.html)
+    const loanAmountInput = document.querySelector('input[name="amount"]');
+    const repaymentPeriodInput = document.querySelector('input[name="repayment_period"]');
+    const interestRate = 0.15;
+
+    function calculateLoan() {
+        const amount = parseFloat(loanAmountInput.value) || 0;
+        const months = parseInt(repaymentPeriodInput.value) || 0;
+
+        if (amount > 0 && months > 0) {
+            const monthlyRate = interestRate / 12;
+            const monthlyPayment = (amount * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+                                  (Math.pow(1 + monthlyRate, months) - 1);
+            const totalRepayment = monthlyPayment * months;
+            const totalInterest = totalRepayment - amount;
+
+            document.getElementById('monthlyPayment').textContent = 'MWK ' + monthlyPayment.toFixed(0);
+            document.getElementById('totalInterest').textContent = 'MWK ' + totalInterest.toFixed(0);
+            document.getElementById('totalRepayment').textContent = 'MWK ' + totalRepayment.toFixed(0);
+        } else {
+            document.getElementById('monthlyPayment').textContent = '--';
+            document.getElementById('totalInterest').textContent = '--';
+            document.getElementById('totalRepayment').textContent = '--';
+        }
+    }
+
+    loanAmountInput.addEventListener('input', calculateLoan);
+    repaymentPeriodInput.addEventListener('change', calculateLoan);
+
+    // Initialize calculator
+    calculateLoan();
+</script>
+{% endblock extra_scripts %}

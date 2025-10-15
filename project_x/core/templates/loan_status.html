@@ -1,0 +1,22 @@
+<!-- templates/loans/loan_status.html (extracted and adapted from ui.html's #loans section, dynamic loop) -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Your Loans</h2>
+    
+    <div class="space-y-3">
+        {% for application in applications %}
+        <div class="loan-status p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+            <div>
+                <p class="font-medium text-gray-900 text-sm">Loan #{{ application.id }}</p>
+                <p class="text-xs text-gray-600">MWK {{ application.amount }} - {{ application.purpose }}</p>
+            </div>
+            <span class="px-2 py-1 text-xs rounded-full {{ application.status|lower }}-status">{{ application.status }}</span>
+        </div>
+        {% empty %}
+        <p class="text-center text-gray-600">No loans yet. Apply now!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

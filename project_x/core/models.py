@@ -1,3 +1,4 @@
+# core/models.py (updated with balance, outstanding_amount, and Repayment model)
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -12,6 +13,7 @@ class UserProfile(models.Model):
     monthly_expenses = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     existing_debt = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     number_of_dependents = models.PositiveIntegerField(null=True, blank=True)
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -23,7 +25,8 @@ class LoanApplication(models.Model):
     purpose = models.CharField(max_length=100)
     repayment_period = models.PositiveIntegerField(help_text="In months")
     credit_score = models.PositiveIntegerField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')], default='Pending')
+    status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected'), ('Paid', 'Paid')], default='Pending')
+    outstanding_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     submitted_at = models.DateTimeField(default=timezone.now)
     approved_at = models.DateTimeField(null=True, blank=True)
 
@@ -39,6 +42,14 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.transaction_type} of {self.amount} MWK for {self.user_profile.user.username}"
+
+class Repayment(models.Model):
+    loan = models.ForeignKey(LoanApplication, on_delete=models.CASCADE, related_name='repayments')
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Repayment of {self.amount} MWK for Loan {self.loan.id}"
 
 class MLModelPerformance(models.Model):
     accuracy = models.FloatField()

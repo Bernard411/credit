@@ -1,0 +1,169 @@
+<!-- templates/base.html (new file: common layout with styles from ui.html, bottom nav as links) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>KwikCash - Smart Lending Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.cdnfonts.com/css/maria-2" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Maria', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: rgb(255, 255, 255);
+            min-height: 100vh;
+            margin: 0;
+            font-size: 14px;
+            overflow-x: hidden;
+            touch-action: pan-y;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+        
+        .gradient-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.2s ease;
+        }
+        
+        .gradient-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left: 3px solid #667eea;
+            transition: all 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateX(3px);
+            box-shadow: 0 3px 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        .loan-status {
+            animation: slideIn 0.4s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-dot {
+            animation: pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        input, select, textarea {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 60px;
+            z-index: 50;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #6b7280;
+            font-size: 12px;
+            padding: 8px;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+        }
+        
+        .nav-item i {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        /* Additional styles for status */
+        .approved-status {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .pending-status {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .rejected-status {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="px-4 py-6">
+        {% block content %}
+        {% endblock content %}
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="{% url 'user_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'user_dashboard' %}active{% endif %}">
+            <i class='bx bx-home-alt'></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'loan_application_create' %}" class="nav-item {% if request.resolver_match.url_name == 'loan_application_create' %}active{% endif %}">
+            <i class='bx bx-plus-circle'></i>
+            <span>Apply</span>
+        </a>
+        <a href="{% url 'loan_status' %}" class="nav-item {% if request.resolver_match.url_name == 'loan_status' %}active{% endif %}">
+            <i class='bx bx-list-ul'></i>
+            <span>Loans</span>
+        </a>
+        <a href="{% url 'user_profile_update' %}" class="nav-item {% if request.resolver_match.url_name == 'user_profile_update' %}active{% endif %}">
+            <i class='bx bx-user'></i>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    {% block extra_scripts %}
+    {% endblock extra_scripts %}
+</body>
+</html>

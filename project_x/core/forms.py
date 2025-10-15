@@ -1,3 +1,4 @@
+# core/forms.py (updated with RepaymentForm)
 from django import forms
 from .models import UserProfile, LoanApplication
 
@@ -31,3 +32,11 @@ class LoanApplicationForm(forms.ModelForm):
             'amount': 'Loan Amount (MWK)',
             'repayment_period': 'Repayment Period (Months)',
         }
+
+class RepaymentForm(forms.Form):
+    amount = forms.DecimalField(
+        min_value=0.01,
+        max_digits=12,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 10000 MWK'})
+    )
