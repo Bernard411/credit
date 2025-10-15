@@ -58,7 +58,7 @@ def login_view(request):
             if user:
                 login(request, user)
                 messages.success(request, f'Welcome back, {user.username}!')
-                return redirect('home')
+                return redirect('user_dashboard')
             messages.error(request, 'Invalid username/email or password.')
     else:
         form = LoginForm()
