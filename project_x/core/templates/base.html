@@ -1,4 +1,5 @@
 <!-- templates/base.html (new file: common layout with styles from ui.html, bottom nav as links) -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,6 +80,46 @@
             font-size: 14px;
             line-height: 1.5;
         }
+
+        /* Modern Navbar Styles */
+.navbar {
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+}
+
+.nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 10px;
+    color: #6b7280;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    min-width: 60px;
+}
+
+.nav-link:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    color: #667eea;
+}
+
+.nav-text {
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+/* Adjust main content padding for navbar */
+body {
+    padding-top: 70px;
+    padding-bottom: 20px;
+}
         
         input:focus, select:focus, textarea:focus {
             outline: none;
@@ -137,6 +178,23 @@
     </style>
 </head>
 <body>
+    <!-- Modern Navbar -->
+<nav class="navbar fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-b border-gray-200/50 z-50">
+    <div class="px-4 py-3">
+        <div class="flex items-center justify-between">
+            <!-- Logo and Brand -->
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-graient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                     <img src="{% static 'cash.png'%}" alt="">
+                </div>
+                <span class="text-lg font-bold text-gray-900" style="font-weight: bold;">CashChangu</span>
+            </div>
+
+            <!-- Navigation Links -->
+          
+        </div>
+    </div>
+</nav>
     <!-- Main Content -->
     <div class="px-4 py-6">
         {% block content %}
