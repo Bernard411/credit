@@ -11,4 +11,5 @@ urlpatterns = [
     path('loan/repay/<int:loan_id>/', views.loan_repayment, name='loan_repayment'),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('retrain-model/', views.retrain_model, name='retrain_model'),
+    path('logout/', views.logout_view, name='logout'),
 ]

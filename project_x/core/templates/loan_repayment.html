@@ -1,8 +1,19 @@
 <!-- templates/loans/loan_repayment.html (new template) -->
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <div>
+       <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-4 mb-4 flex items-center text-white">
+                <div class="flex-1">
+                    <h2 class="font-bold mb-2">Bwezan Ngongole</h2>
+                    <p class="text-base mb-3">Kuti Mukhaleso Ndimwayi Obwerekaso</p>
+                 
+                </div>
+                <div class="ml-4">
+                    <img src="{% static 'x.png' %}" style="width: 170px;" alt="" >
+                </div>
+            </div>
     <h2 class="text-xl font-bold text-gray-900 mb-4">Repay Loan #{{ loan.id }}</h2>
     
     <div class="glass-card p-4">

@@ -184,14 +184,40 @@ body {
         <div class="flex items-center justify-between">
             <!-- Logo and Brand -->
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-graient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                     <img src="{% static 'cash.png'%}" alt="">
+                <div class="w-8 h-8 bg-white-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                    <img src="{% static 'cash.png' %}" alt="CashChangu Logo">
                 </div>
                 <span class="text-lg font-bold text-gray-900" style="font-weight: bold;">CashChangu</span>
             </div>
 
-            <!-- Navigation Links -->
-          
+            <!-- Three Dots Dropdown -->
+            <div class="relative">
+                <!-- Three Dots Button -->
+                <button id="dropdownButton" class="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                    <i class='bx bx-dots-vertical-rounded text-gray-600 text-xl'></i>
+                </button>
+                
+                <!-- Dropdown Menu -->
+                <div id="dropdownMenu" class="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 hidden">
+                    <a href="{% url 'user_profile_update' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                        <i class='bx bx-user text-gray-500 text-lg'></i>
+                        <span class="text-sm font-medium">Update Profile</span>
+                    </a>
+                    <a href="{% url 'user_dashboard' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                        <i class='bx bx-home text-gray-500 text-lg'></i>
+                        <span class="text-sm font-medium">Dashboard</span>
+                    </a>
+                    <a href="{% url 'loan_status' %}" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                        <i class='bx bx-list-ul text-gray-500 text-lg'></i>
+                        <span class="text-sm font-medium">My Loans</span>
+                    </a>
+                    <div class="border-t border-gray-200 my-1"></div>
+                    <a href="{% url 'logout' %}" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200">
+                        <i class='bx bx-log-out text-red-500 text-lg'></i>
+                        <span class="text-sm font-medium">Logout</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
@@ -215,12 +241,37 @@ body {
             <i class='bx bx-list-ul'></i>
             <span>Loans</span>
         </a>
-        <a href="{% url 'user_profile_update' %}" class="nav-item {% if request.resolver_match.url_name == 'user_profile_update' %}active{% endif %}">
+        <!-- <a href="{% url 'user_profile_update' %}" class="nav-item {% if request.resolver_match.url_name == 'user_profile_update' %}active{% endif %}">
             <i class='bx bx-user'></i>
             <span>Profile</span>
-        </a>
+        </a> -->
     </div>
 
+<script>
+    // Dropdown Menu Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownButton = document.getElementById('dropdownButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        
+        // Toggle dropdown menu
+        dropdownButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+        
+        // Close dropdown when clicking on a menu item
+        dropdownMenu.addEventListener('click', function() {
+            dropdownMenu.classList.add('hidden');
+        });
+    });
+</script>
     {% block extra_scripts %}
     {% endblock extra_scripts %}
 </body>

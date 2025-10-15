@@ -65,6 +65,11 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('login_view')
+
 @login_required
 def user_dashboard(request):
     profile = get_object_or_404(UserProfile, user=request.user)
