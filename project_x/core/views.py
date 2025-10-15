@@ -57,10 +57,6 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user:
                 login(request, user)
-                # Check if profile is completed
-                if not user.profile.profile_completed:
-                    messages.info(request, 'Please complete your profile setup.')
-                    return redirect('profile_setup')
                 messages.success(request, f'Welcome back, {user.username}!')
                 return redirect('home')
             messages.error(request, 'Invalid username/email or password.')
