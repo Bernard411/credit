@@ -1,0 +1,328 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mphunzitsi-AI</title>
+    <meta name="description" content="Sign in to Mphunzitsi-AI - Your personal learning assistant">
+    <meta name="keywords" content="education, AI, learning, Mphunzitsi">
+    <meta name="author" content="Mphunzitsi-AI">
+    <link rel="icon" type="image/png" href="{% static 'favicon/favicon.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.cdnfonts.com/css/poppins" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/maria-2" rel="stylesheet">
+                
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+        .form-input {
+            border-radius: 10px;
+            padding: 12px 14px;
+            padding-right: 45px;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            width: 100%;
+        }
+        .form-input:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            outline: none;
+        }
+        .text-sm-sm {
+            font-size: 0.8rem;
+        }
+        .text-xs-sm {
+            font-size: 0.7rem;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #9ca3af;
+            transition: color 0.2s;
+        }
+        .password-toggle:hover {
+            color: #6b7280;
+        }
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .btn-loading .btn-text {
+            visibility: hidden;
+        }
+        .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-3 py-6">
+    <div class="w-full max-w-sm">
+        <!-- Logo/App Name -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <div class="w-32 h-32 bg-gradient-to-r from-black-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                  <img src="{% static 'cash.png'%}" alt="">
+                </div>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">
+                Welcome Back!
+            </h1>
+            <p class="text-gray-600 mt-2" style="font-family: Maria;">Kongolan Makobidi!</p>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-3 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-green-50 text-green-700 border border-green-200{% endif %} text-sm-sm">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Login Form -->
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+            <form method="post" id="loginForm">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm-sm font-medium mb-1" for="{{ form.username_or_email.id_for_label }}">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        Username or Email
+                    </label>
+                    {{ form.username_or_email }}
+                    {% if form.username_or_email.errors %}
+                        <div class="text-red-500 text-xs-sm mt-1">
+                            {{ form.username_or_email.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm-sm font-medium mb-1" for="{{ form.password.id_for_label }}">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Password
+                    </label>
+                    <div class="relative">
+                        {{ form.password }}
+                        <span class="password-toggle" onclick="togglePassword('{{ form.password.id_for_label }}')">
+                            <svg id="eye-open-{{ form.password.id_for_label }}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg id="eye-closed-{{ form.password.id_for_label }}" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </span>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="text-red-500 text-xs-sm mt-1">
+                            {{ form.password.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                    <div class="text-red-500 text-xs-sm mb-4 bg-red-50 p-2 rounded">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+                
+                <button type="submit" id="submitBtn"
+                        class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-semibold py-3 rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 text-sm shadow-lg transform hover:scale-[1.02]">
+                    <span class="btn-text">
+                        <svg class="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg> 
+                        Let's Go!
+                    </span>
+                    <div class="spinner" style="display: none;"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Register Link -->
+        <div class="text-center">
+            <p class="text-gray-600 text-sm-sm">
+                Don't have an account? 
+                <a href="" class="font-medium text-purple-600 hover:text-purple-500 transition-colors">
+                    Create one here
+                </a>
+            </p>
+        </div>
+    </div>
+</body>
+
+    <script>
+        // Password visibility toggle
+        function togglePassword(fieldId) {
+            const input = document.getElementById(fieldId);
+            const eyeOpen = document.getElementById('eye-open-' + fieldId);
+            const eyeClosed = document.getElementById('eye-closed-' + fieldId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                input.type = 'password';
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        }
+
+        // Form submission with loading state
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const btn = document.getElementById('submitBtn');
+            const btnText = btn.querySelector('.btn-text');
+            const spinner = btn.querySelector('.spinner');
+            
+            btn.classList.add('btn-loading');
+            spinner.style.display = 'block';
+        });
+
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                .then(function(registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(function(error) {
+                    console.log('Service Worker registration failed:', error);
+                });
+            });
+        }
+    </script>
+    <script>
+        /**
+ * JavaScript to make web app behave like an Android app:
+ * - Restrict zooming in/out (disable pinch zoom)
+ * - Prevent light/long clicks from triggering browser context menus
+ * - Add smooth scrolling and touch-friendly interactions
+ */
+
+// 1. Restrict zooming in/out - Prevent pinch zoom
+// Add this meta tag in your HTML <head> for complete disable (already assumed, but JS reinforcement)
+document.addEventListener('touchstart', function (event) {
+  if (event.touches.length > 1) {
+    event.preventDefault(); // Prevent multi-touch gestures like pinch zoom
+  }
+}, { passive: false });
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function (event) {
+  const now = (new Date()).getTime();
+  if (now - lastTouchEnd <= 300) { // Double-tap detection
+    event.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
+
+// Disable double-tap to zoom
+let lastTouchStart = 0;
+document.addEventListener('touchstart', function (event) {
+  const now = (new Date()).getTime();
+  if (now - lastTouchStart <= 300) { // Double-tap
+    event.preventDefault();
+  }
+  lastTouchStart = now;
+}, false);
+
+// 2. Prevent light/long clicks from triggering browser context menus
+// Disable right-click/context menu on the entire document
+document.addEventListener('contextmenu', function (e) {
+  e.preventDefault();
+}, false);
+
+// Prevent selection (to avoid accidental text selection on touch)
+document.addEventListener('selectstart', function (e) {
+  e.preventDefault();
+}, false);
+
+// Prevent long-press context menu on mobile (reinforce)
+document.addEventListener('touchstart', function (e) {
+  // Optional: Add a timeout to detect long press and prevent default if needed
+  const timer = setTimeout(() => {
+    e.preventDefault();
+  }, 500); // 500ms long press
+
+  e.target.addEventListener('touchend', () => {
+    clearTimeout(timer);
+  }, { once: true });
+}, { passive: false });
+
+// 3. Additional Android-like behaviors
+// Smooth scrolling for lists (if using overflow-auto elements)
+document.documentElement.style.scrollBehavior = 'smooth';
+
+// Prevent pull-to-refresh (if not desired)
+document.addEventListener('touchmove', function (e) {
+  // Only prevent if at top/bottom and pulling (customize as needed)
+  if (e.touches.length > 1) return; // Allow multi-touch
+  const top = window.pageYOffset === 0;
+  const bottom = window.innerHeight + window.pageYOffset >= document.body.scrollHeight;
+  if (top && e.touches[0].clientY > 10) {
+    e.preventDefault(); // Prevent pull down
+  } else if (bottom && e.touches[0].clientY < window.innerHeight - 10) {
+    e.preventDefault(); // Prevent pull up
+  }
+}, { passive: false });
+
+// Make viewport fixed (reinforce with JS if meta is set)
+// window.visualViewport.scale = 1; // iOS specific, but helps
+
+// Optional: Add haptic feedback simulation (for Android feel, requires Vibration API)
+function vibrate(duration) {
+  if (navigator.vibrate) {
+    navigator.vibrate(duration || 50);
+  }
+}
+
+// Example usage: Call vibrate() on button clicks for tactile feedback
+document.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    vibrate(50); // Short vibration on tap
+  });
+});
+
+// Export for use in your app
+// These are event listeners, so just include this script in your HTML
+console.log('Mobile app behaviors applied: No zoom, no context menus, smooth interactions.');
+    </script>
+</html>

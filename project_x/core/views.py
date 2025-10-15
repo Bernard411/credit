@@ -34,6 +34,41 @@ from sklearn.metrics import mean_squared_error, r2_score
 import pandas as pd
 import subprocess
 
+
+
+
+
+
+
+# auth/views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import LoginForm
+
+
+def login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username_or_email')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user:
+                login(request, user)
+                # Check if profile is completed
+                if not user.profile.profile_completed:
+                    messages.info(request, 'Please complete your profile setup.')
+                    return redirect('profile_setup')
+                messages.success(request, f'Welcome back, {user.username}!')
+                return redirect('home')
+            messages.error(request, 'Invalid username/email or password.')
+    else:
+        form = LoginForm()
+    return render(request, 'login.html', {'form': form})
+
+
 @login_required
 def user_dashboard(request):
     profile = get_object_or_404(UserProfile, user=request.user)

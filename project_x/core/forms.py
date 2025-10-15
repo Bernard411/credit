@@ -40,3 +40,45 @@ class RepaymentForm(forms.Form):
         decimal_places=2,
         widget=forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 10000 MWK'})
     )
+    
+from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
+
+class LoginForm(forms.Form):
+    username_or_email = forms.CharField(
+        label='Username or Email',
+        widget=forms.TextInput(attrs={
+            'class': 'form-input w-full focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'placeholder': 'Enter your username or email'
+        })
+    )
+    password = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-input w-full focus:outline-none focus:ring-2 focus:ring-blue-500',
+            'placeholder': 'Enter your password'
+        })
+    )
+
+    def clean_username_or_email(self):
+        username_or_email = self.cleaned_data.get('username_or_email')
+        if '@' in username_or_email:
+            try:
+                user = User.objects.get(email=username_or_email)
+                return user.username
+            except User.DoesNotExist:
+                raise ValidationError("No account found with this email address.")
+        return username_or_email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        username = cleaned_data.get('username_or_email')
+        password = cleaned_data.get('password')
+
+        if username and password:
+            user = authenticate(username=username, password=password)
+            if not user:
+                raise ValidationError("Invalid username/email or password.")
+        return cleaned_data
