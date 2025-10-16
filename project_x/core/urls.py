@@ -1,4 +1,4 @@
-# core/urls.py (updated with loan_repayment)
+# core/urls.py (updated excerpt)
 from django.urls import path
 from . import views
 
@@ -9,6 +9,8 @@ urlpatterns = [
     path('loan/apply/', views.loan_application_create, name='loan_application_create'),
     path('loan/status/', views.loan_status, name='loan_status'),
     path('loan/repay/<int:loan_id>/', views.loan_repayment, name='loan_repayment'),
+    path('transaction/add/', views.add_transaction, name='add_transaction'),
+    path('transactions/all/', views.all_transactions, name='all_transactions'),  # New URL
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('retrain-model/', views.retrain_model, name='retrain_model'),
     path('logout/', views.logout_view, name='logout'),

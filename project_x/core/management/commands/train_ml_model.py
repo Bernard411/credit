@@ -61,6 +61,8 @@ class Command(BaseCommand):
                         'monthly_expenses': float(profile.monthly_expenses or 0),
                         'existing_debt': float(profile.existing_debt or 0),
                         'number_of_dependents': profile.number_of_dependents or 0,
+                        'mobile_usage_monthly': float(profile.mobile_usage_monthly or 0),
+                        'utility_bills_monthly': float(profile.utility_bills_monthly or 0),
                         'avg_transaction_amount': float(trans_data['avg_amount'] or 0),
                         'transaction_count': trans_data['count'] or 0,
                         'inflation_rate': 0,

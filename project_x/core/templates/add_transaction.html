@@ -1,0 +1,242 @@
+<!-- templates/add_transaction.html (updated) -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Base Input Styles */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb; /* Light gray border */
+        border-radius: 10px; /* Rounded corners */
+        background: #ffffff; /* White background */
+        font-size: 14px;
+        font-weight: 500;
+        color: #1f2937; /* Dark gray text */
+        transition: all 0.3s ease; /* Smooth transitions */
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+    }
+
+    /* Input with left icon (e.g., for number inputs) */
+    input[type="number"] {
+        padding-left: 40px; /* Space for icon */
+    }
+
+    /* Select dropdown styling */
+    select {
+        appearance: none; /* Remove default arrow */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        padding-right: 40px; /* Space for arrow */
+    }
+
+    /* Focus States */
+    input:focus,
+    select:focus,
+    textarea:focus {
+        outline: none; /* Remove default outline */
+        border-color: #667eea; /* Matching gradient color */
+        background-color: #f9fafb; /* Light background on focus */
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2); /* Blue glow */
+        transform: translateY(-1px); /* Slight lift effect */
+    }
+
+    /* Hover States */
+    input:hover,
+    select:hover,
+    textarea:hover {
+        border-color: #d1d5db; /* Slightly darker border on hover */
+        background-color: #f9fafb; /* Light background on hover */
+    }
+
+    /* Placeholder Styling */
+    input::placeholder,
+    textarea::placeholder {
+        color: #9ca3af; /* Gray placeholder text */
+        font-weight: 400; /* Normal weight */
+    }
+
+    /* Disabled State */
+    input:disabled,
+    select:disabled,
+    textarea:disabled {
+        background-color: #f3f4f6; /* Light gray background */
+        color: #6b7280; /* Darker gray text */
+        border-color: #e5e7eb; /* Light border */
+        cursor: not-allowed; /* No interaction */
+    }
+
+    /* Error State */
+    input:invalid,
+    select:invalid,
+    textarea:invalid {
+        border-color: #ef4444; /* Red border for errors */
+        background-color: #fef2f2; /* Light red background */
+    }
+
+    /* Success State */
+    input:valid:not(:placeholder-shown),
+    select:valid,
+    textarea:valid:not(:placeholder-shown) {
+        border-color: #10b981; /* Green border for valid input */
+        background-color: #f0fdf4; /* Light green background */
+    }
+
+    /* Number Input Specific */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type="number"] {
+        -moz-appearance: textfield; /* Firefox */
+    }
+
+    /* Icon Integration (e.g., for location or employment fields) */
+    .input-with-icon {
+        position: relative;
+    }
+
+    .input-with-icon i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af; /* Gray icon color */
+        pointer-events: none; /* Prevent interaction with icon */
+    }
+
+    .input-with-icon input,
+    .input-with-icon select {
+        padding-left: 40px; /* Adjust for icon */
+    }
+
+    /* Label Styling */
+    label {
+        display: block;
+        font-weight: 600;
+        color: #374151; /* Dark gray label */
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="password"],
+        select,
+        textarea {
+            padding: 10px 12px; /* Slightly smaller padding on mobile */
+        }
+
+        .input-with-icon input,
+        .input-with-icon select {
+            padding-left: 35px; /* Adjust for smaller screens */
+        }
+    }
+</style>
+<div>
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-4 mb-4 flex items-center text-white">
+        <div class="flex-1">
+            <h2 class="font-bold mb-2">Transactions</h2>
+            <p class="text-base mb-3">Manage your financial activities</p>
+        </div>
+        <div class="ml-4">
+            <img src="{% static 'wallet.png' %}" style="width: 130px;" alt="Wallet Icon">
+        </div>
+    </div>
+
+    <!-- Transaction Success Popup -->
+    {% if show_popup %}
+    <div id="successPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <div class="text-green-500 text-4xl mb-4">
+                <i class='bx bx-check-circle'></i> <!-- Check mark icon -->
+            </div>
+            <h3 class="text-lg font-bold text-gray-900">{{ popup_data.message }}</h3>
+            <p class="text-sm text-gray-600">Amount: MWK {{ popup_data.amount }}</p>
+            <p class="text-sm text-gray-600">Type: {{ popup_data.type }}</p>
+            <p class="text-sm text-gray-600">Reference: {{ popup_data.reference }}</p>
+            <p class="text-sm text-gray-600">Date: {{ popup_data.date }}</p>
+            <button id="closePopup" class="mt-4 gradient-btn text-white py-2 px-4 rounded-lg font-semibold text-sm hover:transform hover:scale-105 transition-all duration-300 shadow-lg">
+                Close
+            </button>
+        </div>
+    </div>
+    <script>
+        document.getElementById('closePopup').addEventListener('click', function() {
+            document.getElementById('successPopup').style.display = 'none';
+            // Redirect or refresh if needed (optional)
+            // window.location.href = "{% url 'add_transaction' %}";
+        });
+    </script>
+    {% endif %}
+
+    <!-- Transaction List Section -->
+    <div class="mb-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Transaction History</h2>
+        <div class="space-y-3">
+            {% for transaction in transactions %}
+            <div class="loan-status p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+                <div>
+                    <p class="font-medium text-gray-900 text-sm">{{ transaction.transaction_type }} - {{ transaction.description|default:"No description" }}</p>
+                    <p class="text-xs text-gray-600">MWK {{ transaction.amount }} on {{ transaction.transaction_date|date:"M d, Y H:i" }} (Ref: {{ transaction.reference_number|default:"N/A" }}, Source: {{ transaction.source|default:"N/A" }})</p>
+                </div>
+                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-600">{{ transaction.transaction_type }}</span>
+            </div>
+            {% empty %}
+            <p class="text-center text-gray-600">No transactions yet. Add one below!</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Add Transaction Form -->
+    <div class="glass-card p-4">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Add New Transaction</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Amount (MWK)</label>
+                    {{ form.amount }}
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Transaction Type</label>
+                    {{ form.transaction_type }}
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Description</label>
+                    {{ form.description }}
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Reference Number</label>
+                    {{ form.reference_number }}
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Source</label>
+                    {{ form.source }}
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Date</label>
+                    {{ form.transaction_date }}
+                </div>
+                <button type="submit" class="w-full gradient-btn text-white py-3 rounded-lg font-semibold text-sm hover:transform hover:scale-105 transition-all duration-300 shadow-lg">
+                    Add Transaction
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

@@ -1,23 +1,49 @@
 # core/forms.py (updated with RepaymentForm)
+# core/forms.py (updated)
 from django import forms
-from .models import UserProfile, LoanApplication
+from .models import UserProfile, LoanApplication, Transaction
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['age', 'gender', 'location', 'employment_status', 'monthly_income', 'monthly_expenses', 'existing_debt', 'number_of_dependents']
+        fields = ['age', 'gender', 'location', 'employment_status', 'monthly_income', 'monthly_expenses', 'existing_debt', 'number_of_dependents', 'mobile_usage_monthly', 'utility_bills_monthly', 'proof_documents']
         widgets = {
             'age': forms.NumberInput(attrs={'min': 18, 'max': 100, 'placeholder': 'Enter your age'}),
             'monthly_income': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 150000 MWK'}),
             'monthly_expenses': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 80000 MWK'}),
             'existing_debt': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 30000 MWK'}),
             'number_of_dependents': forms.NumberInput(attrs={'min': 0, 'placeholder': 'e.g., 2'}),
+            'mobile_usage_monthly': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 5000 MWK'}),
+            'utility_bills_monthly': forms.NumberInput(attrs={'step': '0.01', 'placeholder': 'e.g., 10000 MWK'}),
+            'proof_documents': forms.ClearableFileInput(attrs={'multiple': False}),
         }
         labels = {
             'monthly_income': 'Monthly Income (MWK)',
             'monthly_expenses': 'Monthly Expenses (MWK)',
             'existing_debt': 'Existing Debt (MWK)',
+            'mobile_usage_monthly': 'Average Monthly Mobile Usage (MWK)',
+            'utility_bills_monthly': 'Average Monthly Utility Bills (MWK)',
+            'proof_documents': 'Supporting Documents',
         }
+
+# core/forms.py (updated excerpt)
+from django import forms
+from .models import UserProfile, LoanApplication, Transaction
+
+# ... (keep UserProfileForm, LoanApplicationForm, etc.)
+
+class TransactionForm(forms.ModelForm):
+    class Meta:
+        model = Transaction
+        fields = ['amount', 'transaction_type', 'description', 'transaction_date', 'reference_number', 'source']
+        widgets = {
+            'transaction_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'description': forms.TextInput(attrs={'placeholder': 'e.g., Salary deposit or Utility payment'}),
+            'reference_number': forms.TextInput(attrs={'placeholder': 'e.g., TXN123456789'}),
+            'source': forms.TextInput(attrs={'placeholder': 'e.g., Airtel, TNM, Bank'}),
+        }
+
+# ... (keep LoanApplicationForm, RepaymentForm, LoginForm as is)
 
 class LoanApplicationForm(forms.ModelForm):
     class Meta:

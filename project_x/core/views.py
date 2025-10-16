@@ -78,6 +78,7 @@ def user_dashboard(request):
     active_loans_count = approved_loans.count()
     total_active_amount = approved_loans.aggregate(total=Sum('outstanding_amount'))['total'] or 0
     avg_credit_score = applications.aggregate(avg_score=Avg('credit_score'))['avg_score'] or 750
+    transactions = Transaction.objects.filter(user_profile=profile).order_by('-transaction_date')[:2]  # Get only 2 most recent
     # Placeholder logic for available credit (customize as needed, e.g., based on max limit minus outstanding)
     available_credit = 100000 - total_active_amount  # Assuming max credit limit of 100,000 MWK
     balance = profile.balance
@@ -89,14 +90,29 @@ def user_dashboard(request):
         'credit_score': int(avg_credit_score),
         'balance': balance,
         'approved_loans': approved_loans,
+        'transactions': transactions
     }
     return render(request, 'user_dashboard.html', context)
+# core/views.py (updated excerpts)
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Avg, Count, Sum
+from django.utils import timezone
+from .models import UserProfile, LoanApplication, Transaction, MLModelPerformance, Repayment
+from .forms import UserProfileForm, LoanApplicationForm, TransactionForm, RepaymentForm
+import numpy as np
+import joblib
+from sklearn.ensemble import RandomForestRegressor
+import pandas as pd
+
+# ... (keep existing imports and views like login_view, logout_view, user_dashboard)
 
 @login_required
 def user_profile_update(request):
     profile = get_object_or_404(UserProfile, user=request.user)
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=profile)
+        form = UserProfileForm(request.POST, request.FILES, instance=profile)  # Handle file upload
         if form.is_valid():
             form.save()
             messages.success(request, "Profile updated successfully!")
@@ -105,11 +121,89 @@ def user_profile_update(request):
         form = UserProfileForm(instance=profile)
     return render(request, 'profile_update.html', {'form': form})
 
+
+# core/views.py (updated excerpt)
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Avg, Count, Sum
+from django.utils import timezone
+from django.core.paginator import Paginator
+from .models import UserProfile, LoanApplication, Transaction, MLModelPerformance, Repayment
+from .forms import UserProfileForm, LoanApplicationForm, TransactionForm, RepaymentForm
+import json
+
+# ... (keep existing views)
+
+@login_required
+def all_transactions(request):
+    profile = get_object_or_404(UserProfile, user=request.user)
+    transactions = Transaction.objects.filter(user_profile=profile).order_by('-transaction_date')
+
+    # Pagination
+    paginator = Paginator(transactions, 10)  # Show 10 transactions per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'all_transactions.html', {
+        'page_obj': page_obj,
+    })
+
+# core/views.py (updated excerpt)
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Avg, Count, Sum
+from django.utils import timezone
+from .models import UserProfile, LoanApplication, Transaction, MLModelPerformance, Repayment
+from .forms import UserProfileForm, LoanApplicationForm, TransactionForm, RepaymentForm
+import json
+
+# core/views.py (updated excerpt)
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Avg, Count, Sum
+from django.utils import timezone
+from .models import UserProfile, LoanApplication, Transaction, MLModelPerformance, Repayment
+from .forms import UserProfileForm, LoanApplicationForm, TransactionForm, RepaymentForm
+import json
+
+@login_required
+def add_transaction(request):
+    profile = get_object_or_404(UserProfile, user=request.user)
+    transactions = Transaction.objects.filter(user_profile=profile).order_by('-transaction_date')  # Fetch all transactions for display
+    
+    if request.method == 'POST':
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            transaction = form.save(commit=False)
+            transaction.user_profile = profile
+            # Auto-generate a simple reference number (e.g., timestamp-based)
+            if not transaction.reference_number:
+                transaction.reference_number = f"TXN{timezone.now().strftime('%Y%m%d%H%M%S')}-{profile.user.id}"
+            transaction.save()
+            messages.success(request, "Transaction added successfully!")
+            # Prepare data for popup, converting Decimal to string
+            transaction_data = {
+                'message': 'Transaction Successful!',
+                'amount': str(transaction.amount),  # Convert Decimal to string
+                'type': transaction.transaction_type,
+                'reference': transaction.reference_number,
+                'date': transaction.transaction_date.strftime('%Y-%m-%d %H:%M')
+            }
+            return render(request, 'add_transaction.html', {
+                'form': TransactionForm(),
+                'transactions': transactions,
+                'show_popup': True,
+                'popup_data': json.dumps(transaction_data)
+            })
+    else:
+        form = TransactionForm()
+    return render(request, 'add_transaction.html', {'form': form, 'transactions': transactions})
+
 @login_required
 def loan_application_create(request):
-    """
-    Automatic loan approval system using ML model predictions
-    """
     if request.method == 'POST':
         form = LoanApplicationForm(request.POST)
         if form.is_valid():
@@ -117,44 +211,34 @@ def loan_application_create(request):
             application = form.save(commit=False)
             application.user_profile = profile
 
-            # Prepare features for prediction
+            # Prepare features with user-provided data
             features = prepare_features(profile, application)
-            
-            # Predict credit score using the trained model
-            credit_score, confidence = predict_credit_score_with_confidence(features)
-            application.credit_score = credit_score
-            
-            # Automatic decision based on credit score and confidence
+            model = joblib.load('credit_scoring_model.pkl')  # Load trained model
+            credit_score = model.predict([list(features.values())])[0]
+            application.credit_score = int(credit_score)
+
             decision = make_loan_decision(
                 credit_score=credit_score,
-                confidence=confidence,
                 loan_amount=float(application.amount),
                 monthly_income=float(profile.monthly_income or 0),
                 existing_debt=float(profile.existing_debt or 0)
             )
-            
             application.status = decision['status']
             if decision['status'] == 'Approved':
                 application.approved_at = timezone.now()
                 application.outstanding_amount = application.amount
                 profile.balance += application.amount
                 profile.save()
-            
             application.save()
-            
-            # User feedback
             messages.success(request, decision['message'])
             return redirect('loan_status')
     else:
         form = LoanApplicationForm()
-    
     return render(request, 'loan_application.html', {'form': form})
 
 def prepare_features(profile, application):
-    """
-    Prepare feature vector for ML model prediction
-    """
-    features = {
+    transactions = Transaction.objects.filter(user_profile=profile)
+    return {
         'loan_amount': float(application.amount),
         'repayment_period': application.repayment_period or 12,
         'age': profile.age or 30,
@@ -162,35 +246,15 @@ def prepare_features(profile, application):
         'monthly_expenses': float(profile.monthly_expenses or 0),
         'existing_debt': float(profile.existing_debt or 0),
         'number_of_dependents': profile.number_of_dependents or 0,
+        'mobile_usage_monthly': float(profile.mobile_usage_monthly or 0),
+        'utility_bills_monthly': float(profile.utility_bills_monthly or 0),
+        'transaction_count': transactions.count(),
+        'avg_transaction_amount': transactions.aggregate(Avg('amount'))['amount__avg'] or 0,
     }
-    
-    # Add external/regional economic data
-    location = profile.location
-    external_data = {
-        'Lilongwe': {'inflation_rate': 8.5, 'unemployment_rate': 6.2, 'default_rate': 3.5},
-        'Blantyre': {'inflation_rate': 9.0, 'unemployment_rate': 7.0, 'default_rate': 4.0},
-        'Mzuzu': {'inflation_rate': 7.8, 'unemployment_rate': 5.8, 'default_rate': 3.0}
-    }
-    features.update(external_data.get(location, {
-        'inflation_rate': 8.5, 
-        'unemployment_rate': 6.5, 
-        'default_rate': 3.5
-    }))
-    
-    # Add transaction history features if available
-    transactions = Transaction.objects.filter(user_profile=profile)
-    if transactions.exists():
-        trans_stats = transactions.aggregate(
-            avg_amount=Avg('amount'),
-            count=Count('id')
-        )
-        features['avg_transaction_amount'] = float(trans_stats['avg_amount'] or 0)
-        features['transaction_count'] = trans_stats['count'] or 0
-    else:
-        features['avg_transaction_amount'] = 0
-        features['transaction_count'] = 0
-    
-    return features
+
+# ... (keep other views like loan_status, loan_repayment, admin_dashboard, retrain_model)
+
+
 
 def predict_credit_score_with_confidence(features):
     """

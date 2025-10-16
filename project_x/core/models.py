@@ -1,4 +1,4 @@
-# core/models.py (updated with balance, outstanding_amount, and Repayment model)
+# core/models.py (updated)
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -13,11 +13,35 @@ class UserProfile(models.Model):
     monthly_expenses = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     existing_debt = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     number_of_dependents = models.PositiveIntegerField(null=True, blank=True)
+    mobile_usage_monthly = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Average monthly mobile usage (MWK)")
+    utility_bills_monthly = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Average monthly utility bills (MWK)")
+    proof_documents = models.FileField(upload_to='user_proofs/', null=True, blank=True, help_text="Upload proof (e.g., bank statement, utility bill)")
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
+# core/models.py (updated excerpt)
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+# ... (keep UserProfile, LoanApplication, etc.)
+
+class Transaction(models.Model):
+    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    transaction_type = models.CharField(max_length=20, choices=[('Deposit', 'Deposit'), ('Withdrawal', 'Withdrawal'), ('Transfer', 'Transfer'), ('Mobile Top-up', 'Mobile Top-up'), ('Utility Payment', 'Utility Payment')])
+    transaction_date = models.DateTimeField(default=timezone.now)
+    description = models.CharField(max_length=200, null=True, blank=True)
+    reference_number = models.CharField(max_length=50, null=True, blank=True, help_text="Unique transaction reference number (e.g., from bank)")  # New field
+    source = models.CharField(max_length=100, null=True, blank=True, help_text="Source of transaction (e.g., Airtel, TNM, Bank)")  # New field
+
+    def __str__(self):
+        return f"{self.transaction_type} of {self.amount} MWK for {self.user_profile.user.username} (Ref: {self.reference_number or 'N/A'})"
+
+# ... (keep LoanApplication, Repayment, MLModelPerformance as is)
 
 class LoanApplication(models.Model):
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
@@ -33,15 +57,7 @@ class LoanApplication(models.Model):
     def __str__(self):
         return f"Loan {self.id} - {self.user_profile.user.username}"
 
-class Transaction(models.Model):
-    user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    transaction_type = models.CharField(max_length=20, choices=[('Deposit', 'Deposit'), ('Withdrawal', 'Withdrawal'), ('Transfer', 'Transfer')])
-    transaction_date = models.DateTimeField(default=timezone.now)
-    description = models.CharField(max_length=200, null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.transaction_type} of {self.amount} MWK for {self.user_profile.user.username}"
 
 class Repayment(models.Model):
     loan = models.ForeignKey(LoanApplication, on_delete=models.CASCADE, related_name='repayments')

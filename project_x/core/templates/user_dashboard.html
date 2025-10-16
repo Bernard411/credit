@@ -1,27 +1,21 @@
-<!-- templates/dashboard/user_dashboard.html (updated with balance card, approved loans list, repay buttons, removed next payment) -->
-
+<!-- templates/dashboard/user_dashboard.html (updated with transactions, Add Transaction button, and Loan Apply button) -->
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
 <div>
     <div class="mb-6">
-        <!-- App Logo with Text -->
-        <!-- <div class="flex flex-col items-center mb-4">
-            <img src="https://img.freepik.com/premium-vector/coin-leaf-logo-combination-money-eco-symbol-icon_617472-6242.jpg" alt="KwikCash Logo" class="w-12 h-12 rounded-full shadow-lg">
-            <span class="text-gray text-lg font-bold mt-2">KwikCash Malawi</span>
-        </div> -->
         <!-- Welcome Header with User Avatar Image -->
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="relative">
                     <a href="{% url 'user_profile_update' %}">
-                    <img src="https://png.pngtree.com/png-vector/20240914/ourmid/pngtree-cartoon-user-avatar-vector-png-image_13572228.png" alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-gray">
+                        <img src="https://png.pngtree.com/png-vector/20240914/ourmid/pngtree-cartoon-user-avatar-vector-png-image_13572228.png" alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-gray">
                     </a>
                     <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-gray"></div>
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-gray" style="font-family: Poppins;">Takulandilani, {{ request.user.username }}!</h1>
-                    <p class="text--200 text-xs">Manage your loans</p>
+                    <p class="text--200 text-xs">Manage your loans and transactions</p>
                 </div>
             </div>
         </div>
@@ -59,13 +53,12 @@
             </div>
             <p class="text-gray-600 text-xs mb-1">Credit Score</p>
             <p class="text-lg font-bold text-gray-900">{{ credit_score }}</p>
-            <p class="text-purple-600 text-xs mt-1">Excellent</p>  <!-- Can make dynamic based on score -->
+            <p class="text-purple-600 text-xs mt-1">Excellent</p>
         </div>
 
         <div class="glass-card p-4">
             <div class="flex items-center justify-between mb-3">
                 <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-
                     <i class='bx bx-wallet text-indigo-600 text-lg'></i>
                 </div>
             </div>
@@ -73,17 +66,45 @@
             <p class="text-lg font-bold text-gray-900">MWK {{ balance }}</p>
         </div>
     </div>
-    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-4 mb-4 flex items-center text-white">
-                <div class="flex-1">
-                    <h2 class="font-bold mb-2">loans</h2>
-                    <p class="text-base mb-3">Kodi Ndinu Oyenera Kutenga Ngongole!</p>
-                 
+
+    <!-- Action Buttons -->
+    <div class="mb-6 flex space-x-4">
+        <a href="{% url 'loan_application_create' %}" class="w-full gradient-btn text-white py-3 rounded-lg font-semibold text-sm text-center hover:transform hover:scale-105 transition-all duration-300 shadow-lg">
+            Loan Apply
+        </a>
+        <a href="{% url 'add_transaction' %}" class="w-full gradient-btn text-white py-3 rounded-lg font-semibold text-sm text-center hover:transform hover:scale-105 transition-all duration-300 shadow-lg">
+            Add Transaction
+        </a>
+    </div>
+
+    <!-- Transaction History Section -->
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Transaction History</h2>
+        <div class="space-y-3">
+            {% for transaction in transactions %}
+            <div class="loan-status p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+                <div>
+                    <p class="font-medium text-gray-900 text-sm">{{ transaction.transaction_type }} - {{ transaction.description|default:"No description" }}</p>
+                    <p class="text-xs text-gray-600">MWK {{ transaction.amount }} on {{ transaction.transaction_date|date:"M d, Y H:i" }} (Ref: {{ transaction.reference_number|default:"N/A" }}, Source: {{ transaction.source|default:"N/A" }})</p>
                 </div>
-                <div class="ml-4">
-                    <img src="{% static 'money.png' %}" style="width: 130px;" alt="" >
-                </div>
+                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-600">{{ transaction.transaction_type }}</span>
             </div>
-            
+            {% empty %}
+            <p class="text-center text-gray-600">No transactions yet. Add one above!</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Loans Banner -->
+    <div class="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-4 mb-4 flex items-center text-white">
+        <div class="flex-1">
+            <h2 class="font-bold mb-2">loans</h2>
+            <p class="text-base mb-3">Kodi Ndinu Oyenera Kutenga Ngongole!</p>
+        </div>
+        <div class="ml-4">
+            <img src="{% static 'money.png' %}" style="width: 130px;" alt="">
+        </div>
+    </div>
 
     <!-- Granted Loans Section -->
     <div class="mb-6">

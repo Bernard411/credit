@@ -228,24 +228,25 @@ body {
     </div>
 
     <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-        <a href="{% url 'user_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'user_dashboard' %}active{% endif %}">
-            <i class='bx bx-home-alt'></i>
-            <span>Home</span>
-        </a>
-        <a href="{% url 'loan_application_create' %}" class="nav-item {% if request.resolver_match.url_name == 'loan_application_create' %}active{% endif %}">
-            <i class='bx bx-plus-circle'></i>
-            <span>Apply</span>
-        </a>
-        <a href="{% url 'loan_status' %}" class="nav-item {% if request.resolver_match.url_name == 'loan_status' %}active{% endif %}">
-            <i class='bx bx-list-ul'></i>
-            <span>Loans</span>
-        </a>
-        <!-- <a href="{% url 'user_profile_update' %}" class="nav-item {% if request.resolver_match.url_name == 'user_profile_update' %}active{% endif %}">
-            <i class='bx bx-user'></i>
-            <span>Profile</span>
-        </a> -->
-    </div>
+   <!-- Updated bottom-nav section in templates/base.html -->
+<div class="bottom-nav">
+    <a href="{% url 'user_dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'user_dashboard' %}active{% endif %}">
+        <i class='bx bx-home-alt'></i>
+        
+    </a>
+    <!-- <a href="{% url 'loan_application_create' %}" class="nav-item {% if request.resolver_match.url_name == 'loan_application_create' %}active{% endif %}">
+        <i class='bx bx-plus-circle'></i>
+        <span>Apply</span>
+    </a> -->
+    <a href="{% url 'loan_status' %}" class="nav-item {% if request.resolver_match.url_name == 'loan_status' %}active{% endif %}">
+        <i class='bx bx-list-ul'></i>
+       
+    </a>
+    <a href="{% url 'all_transactions' %}" class="nav-item {% if request.resolver_match.url_name == 'all_transactions' %}active{% endif %}">
+        <i class='bx bx-wallet'></i>
+        
+    </a>
+</div>
 
 <script>
     // Dropdown Menu Functionality
